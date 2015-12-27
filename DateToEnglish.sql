@@ -2,7 +2,7 @@
 -- DateToEnglish
 -- Converts a date/time value to a more common English word, such as tomorrow, yesterday, last Tuesday, etc.
 ---------------------------------------------------------------------------------------------------------------
-create function dbo.DateToEnglish(@theDate DATETIME)
+create function dbo.DateToEnglish(@theDate DATETIME,@CountryCode varchar(3))
 returns varchar(32)
 as
 begin
