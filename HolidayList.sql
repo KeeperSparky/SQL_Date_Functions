@@ -1,13 +1,23 @@
 ﻿---------------------------------------------------------------------------------
 -- Returns a virtual table containing all holidays for a given year
+-- Support added for France, Germany, and Italy...
+-- FR, FRA=France
+-- DE, DEU=Germany
+-- IT, ITA=Italy
+-- US, USA=United States
+
 ---------------------------------------------------------------------------------
-CREATE FUNCTION [dbo].[Holiday_List] (@nYear INT)
+ALTER FUNCTION [dbo].[Holiday_List] (@nYear INT,@CountryCode varchar(3)='US')
 RETURNS @Holidays TABLE
-(Holiday_name VARCHAR(32),
-Holiday_date SMALLDATETIME
+	(Holiday_name VARCHAR(32),
+	 Holiday_date SMALLDATETIME
 )
 AS
 BEGIN
+
+SET @CountryCode=left(@CountryCode,2)		-- Only care about first two letters
+
+
 -- Calculate Easter Sunday
 DECLARE @g INT
 DECLARE @c INT
@@ -31,6 +41,15 @@ SET @Month = 3 + ((@l + 40) / 44)
 SET @Day = @l + 28 - (31 * (@Month / 4))
 SET @Easter = CAST(@Month AS VARCHAR(2)) + '/' + CAST(@Day As VARCHAR(2)) + '/' + CAST(@nYear AS VARCHAR(4))
 
+
+-- Load holidays that are celebrated in all countries
+INSERT INTO @Holidays (Holiday_name,Holiday_date) VALUES ('New Year''s Day',CONVERT(SmallDateTime,'1/1/'+CAST(@nYear AS VARCHAR(4))))
+INSERT INTO @Holidays (Holiday_name,Holiday_date) VALUES ('Christmas',CONVERT(SmallDateTime,'12/25/'+CAST(@nYear AS VARCHAR(4))))
+
+-- Germany  Good Friday, Easter Monday, May Day (May1),Ascension day - 39 days after Easter
+
+
+
 ------------------------------------------------------------------------------------------------
 -- Add Easter Sunday to holiday list, and get holidays based around Easter
 INSERT INTO @Holidays (Holiday_name,Holiday_date) VALUES ('Easter',@Easter)
@@ -41,7 +60,7 @@ INSERT INTO @Holidays (Holiday_name,Holiday_date) VALUES ('Palm Sunday',DateAdd(
 -------------------------------------------------------------------------------------------------
 
 -- Fixed date holidays are loaded next
-INSERT INTO @Holidays (Holiday_name,Holiday_date) VALUES ('New Year''s Day',CONVERT(SmallDateTime,'1/1/'+CAST(@nYear AS VARCHAR(4))))
+
 INSERT INTO @Holidays (Holiday_name,Holiday_date) VALUES ('Groundhog Day',CONVERT(SmallDateTime,'2/2/'+CAST(@nYear AS VARCHAR(4))))
 INSERT INTO @Holidays (Holiday_name,Holiday_date) VALUES ('Lincoln''s Birthday',CONVERT(SmallDateTime,'2/12/'+CAST(@nYear AS VARCHAR(4))))
 INSERT INTO @Holidays (Holiday_name,Holiday_date) VALUES ('Valentines Day',CONVERT(SmallDateTime,'2/14/'+CAST(@nYear AS VARCHAR(4))))
@@ -51,7 +70,7 @@ INSERT INTO @Holidays (Holiday_name,Holiday_date) VALUES ('Flag Day',CONVERT(Sma
 IF @nYear >=1776 INSERT INTO @Holidays (Holiday_name,Holiday_date) VALUES ('Independence Day',CONVERT(SmallDateTime,'7/4/'+CAST(@nYear AS VARCHAR(4))))
 IF @nYear >=1958 INSERT INTO @Holidays (Holiday_name,Holiday_date) VALUES ('Boss''s Day',CONVERT(SmallDateTime,'10/16/'+CAST(@nYear AS VARCHAR(4))))
 INSERT INTO @Holidays (Holiday_name,Holiday_date) VALUES ('Halloween',CONVERT(SmallDateTime,'10/31/'+CAST(@nYear AS VARCHAR(4))))
-INSERT INTO @Holidays (Holiday_name,Holiday_date) VALUES ('Christmas',CONVERT(SmallDateTime,'12/25/'+CAST(@nYear AS VARCHAR(4))))
+
 IF @nYear >=1966 INSERT INTO @Holidays (Holiday_name,Holiday_date) VALUES ('Kwanzaa',CONVERT(SmallDateTime,'12/26/'+CAST(@nYear AS VARCHAR(4))))
 
 -- Holidays that full on the same day of the week (based on the year they were officially established)
@@ -113,7 +132,7 @@ END
 RETURN
 END
 GO
-CREATE FUNCTION dbo.FloatingDate(@Occur INT,@WeekDay INT,@Month INT,@Year INT)
+ALTER FUNCTION dbo.FloatingDate(@Occur INT,@WeekDay INT,@Month INT,@Year INT)
 RETURNS
 SMALLDATETIME
 AS
