@@ -47,6 +47,8 @@ INSERT INTO @Holidays (Holiday_name,Holiday_date) VALUES ('New Year''s Day',CONV
 INSERT INTO @Holidays (Holiday_name,Holiday_date) VALUES ('Christmas',CONVERT(SmallDateTime,'12/25/'+CAST(@nYear AS VARCHAR(4))))
 
 -- Germany  Good Friday, Easter Monday, May Day (May1),Ascension day - 39 days after Easter
+-- France
+-- Italy
 
 
 
